@@ -1,0 +1,192 @@
+﻿@model IEnumerable<DataApiService.Models.EventResults>
+@{
+    ViewData["Caption"] = "События";
+    //Layout = null;
+}
+
+
+<div class="catalog">
+    <div class="catalog__head">
+        @using (Html.BeginForm("Index", "Events", FormMethod.Post, htmlAttributes: new { id = "filterr" }))
+        {
+            @Html.Hidden("Order_num", 0, new { id = "Order_num" })
+            @Html.Hidden("Order_direction", "", new { id = "Order_direction" })
+            <div class="box catalog__head-row">
+                <span class="catalog__label">Период:</span>
+                @Html.TextBox("Since", DateTime.Now.ToString("dd.MM.yyyy"), new { placeholder = "с ДД.ММ.ГГГГ", @class = "catalog__input catalog__input--date datepicker", autocomplete = "off" })
+                @Html.TextBox("Until", "", new { placeholder = "по ДД.ММ.ГГГГ", @class = "catalog__input catalog__input--date datepicker", autocomplete = "off" })
+                <button class="btn catalog__btn">Применить</button>
+            </div>
+            <div class="box catalog__head-row">
+                <span class="catalog__label">Автомат:</span>
+                @{
+                    var lst = (IEnumerable<SelectListItem>)ViewData["Machines"];
+                    var selectedName = ViewData["Select_Machine_Id"] != null ? lst.FirstOrDefault(x => x.Value == ViewData["Select_Machine_Id"].ToString())?.Text : "";
+                }
+                <div class="pseudoselect catalog__select">
+                    @Html.Hidden("Machine_id", ViewData["Select_Machine_Id"], new { @class = "id_mashine" })
+                    <input type="text" class="pseudoselect__input" placeholder="Выбрать из списка" value="@selectedName">
+                    <div class="pseudoselect__dropdown custom-scroll">
+                        <div class="pseudoselect__current">@selectedName</div>
+                        <div class="pseudoselect__list">
+                            @foreach (var data in lst)
+                            {
+                                <li data-id_mashine="@data.Value">@data.Text</li>
+                            }
+                        </div>
+                    </div>
+                </div>
+                @Html.TextBox("Str_filter", "", htmlAttributes: new { @class = "catalog__input", type = "search", placeholder = "Поиск по таблице", id = "findField" })
+            </div>
+        }
+    </div>
+    @{double summa = 0;}
+    <div class="catalog__body">
+        <div class="table-wrapper">
+            <table class="catalog__table">
+                <thead>
+                    <tr>
+                        <th class="" data-column="0" width="60">№</th>
+                        <th class="sort" data-column="1" width="110">Дата <br>и время</th>
+                        <th class="sort" data-column="2" width="400">Автомат</th>
+                        <th class="sort" data-column="3" width="110">Событие</th>
+                        <th class="sort" data-column="4" width="90">Товар</th>
+                        <th class="sort" data-column="5" width="90">Сумма</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        int i = 0;
+
+                        foreach (var eventResults in Model)
+                        {
+                            i++;
+                            summa += eventResults.Sum / 100;
+                            var img_name = "";
+                            switch (eventResults.Event_id)
+                            {
+                                //Нал
+                                case 101:
+                                    img_name = "coins.svg";
+                                    break;
+                                //Безнал
+                                case 102:
+                                //Попытка безнал
+                                case 199:
+                                    img_name = "card.svg";
+                                    break;
+                                case 1:
+                                case 3:
+                                    img_name = "notice.svg";
+                                    break;
+                            }
+                            <tr>
+                                <td>@i</td>
+                                <td>
+                                    @($"{eventResults.Date.Split(" ")[0]}")
+                                    <br />
+                                    <small>@($"{eventResults.Date.Split(" ")[1]}")</small>
+                                </td>
+                                <td>
+                                    <p>@eventResults.Machine_name</p>
+                                    <p><small><em>@eventResults.Machine_address</em></small></p>
+                                    <p><small>@eventResults.Machine_model</small></p>
+                                </td>
+                                <td>
+                                    <img src="~/images/@img_name" alt="" />
+                                    <small>@eventResults.Event_name</small>
+                                </td>
+                                <td><small>@eventResults.Product_name</small></td>
+                                <td>@($"{eventResults.Sum/100} руб.")</td>
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5">Итого:</td>
+                        <td>@($"{summa:0.00} руб.")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).on('click ', function (e) {
+            if ($('.nav_menu').css('display') == 'block' && $($(e.target).parent()).attr('class') != 'open_menu_mob' && $(window).width() < 993) {
+                $('.nav_menu').fadeOut();
+            }
+        });
+        $('.open_menu_mob').on('click', function () {
+            $('.nav_menu').fadeIn();
+        });
+        $(function () {
+            let Order_num = $("#Order_num").val();
+            let Order_direction = $("#Order_direction").val();
+
+            $('[data-column=' + Order_num + ']').addClass(Order_direction > 0 ? 'sort-up' : 'sort-down');
+
+            $('.sort').on('click', function () {
+                $("#Order_num").val($(this).data('column'));
+
+                if ($(this).attr('class') == "sort") {
+                    $("#Order_direction").val('-1');
+                } else {
+                    if ($(this).hasClass('sort-up')) {
+                        $("#Order_direction").val('-1');
+                    } else {
+                        $("#Order_direction").val('1');
+                    }
+                }
+                $('#filterr').submit();
+            });
+        });
+        $('.add_item').on('click', function (e) {
+            e.preventDefault(); // этот код предотвращает стандартное поведение браузера по клику
+            $('.action_name').val($(this).data('action'));
+            $('#filterr_action').submit();
+        });
+        $('.edit_item').on('click', function () {
+            $('.id_action').val($(this).data('id'));
+            $('.name_action').val($(this).data('name'));
+            $('.action_name').val($(this).data('action'));
+            $('#filterr_action').submit();
+        });
+        $('.delete_item').on('click', function () {
+            $('#filterr_delete').find('.id_action_del').val($(this).data('id'));
+            $('.edite_add_block').fadeIn();
+        });
+        $('.delete_item_ok').on('click', function () {
+            $('#filterr_delete').submit();
+            $('.edite_add_block').fadeOut();
+        });
+        $('.btn.catalog__btn.gray').on('click', function (e) {
+            e.preventDefault(); // этот код предотвращает стандартное поведение браузера по клику
+            if ($('.del_formm').css('display') == 'block') {
+                $('.edite_add_block').fadeOut();
+            } else {
+                location.href = window.location.href;
+            }
+        });
+
+        $('.page_table').on('click', function () {
+            var page = $(this).data('page');
+            $('.page_table.active').removeClass('active');
+            $(this).addClass('active');
+            $('.active_list').removeClass('active_list');
+            $('[data-list=' + page + ']').addClass('active_list');
+            $("body,html").animate({
+                scrollTop: 0
+            }, 800);
+        });
+    </script>
+
+}
+
+

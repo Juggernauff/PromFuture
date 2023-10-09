@@ -1,0 +1,175 @@
+﻿@model List<WebServer.Models.SentCommand>
+@{
+    ViewData["Title"] = "Отправка команды на терминал";
+    ViewData["Caption"] = "Отправка команды на терминал";
+}
+
+<div>
+    <div style="margin: 10px; 0px; 20px; 0px;">
+        <h2><b>Отправка команды на терминал</b></h2>
+        @{
+            if (ViewData["ErrorMessage"] != null)
+            {
+                <h3 style="color: red;"><b>@ViewData["ErrorMessage"]</b></h3>
+            }
+        }
+    </div>
+    <div style="background-color: aliceblue;">
+        <form asp-action="Index" method="post">
+            <div style="display: flex;">
+                <div style="flex: 1;">
+                    <span class="catalog__label">ID Терминала(ов)</span>
+                    <textarea id="taTerminalIds" name="terminalIds" style="width: 300px; height: 300px;"></textarea>
+                </div>
+                <div style="flex: 1;">
+                    <span class="catalog__label">Команда</span>
+                    @{
+                        var commands = (IEnumerable<SelectListItem>)ViewData["Commands"];
+                    }
+                    @Html.Hidden("CommandId", "", new { id = "commandId"})
+                    @Html.Hidden("CommandName", "", new { id = "commandName"})
+                    @Html.DropDownList("SelectedCommand", commands, "Выберите команду", new 
+                    {
+                        id = "dropDownList",
+                        style = "max-width: 500px; height: 40px; margin: 0;"
+                    })
+                </div>
+            </div>
+            <div id="parameterList" style="display: none; flex-direction: column; margin-top: 20px;">
+                <div>
+                    <span id="parameterName1" name="parameterName1" type="hidden" class="catalog__label"></span>
+                    <br />
+                    @Html.Hidden("CommandParameterValue1", "", new {id = "parameterValue1", @class="catalog__input"})
+                </div>
+                <div>
+                    <span id="parameterName2" name="parameterName2" type="hidden" class="catalog__label"></span>
+                    <br />
+                    @Html.Hidden("CommandParameterValue2", "", new {id = "parameterValue2", @class="catalog__input"})
+                </div>
+                <div>
+                    <span id="parameterName3" name="parameterName3" type="hidden" class="catalog__label"></span>
+                    <br />
+                    @Html.Hidden("CommandParameterValue3", "", new {id = "parameterValue3", @class="catalog__input"})
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn catalog__btn" style="background-color: gray;">Отменить</button>
+                <button class="btn catalog__btn" type="submit">Отправить</button>
+            </div>
+        </form>
+    </div>
+    <div>
+        <table class="catalog__table" style = "margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th class="" data-column="0" width="30">№</th>
+                        <th class="sort" data-column="1" width="110">Дата и время</th>
+                        <th class="sort" data-column="2" width="300">Команда</th>
+                        <th class="sort" data-column="3" width="90">Параметр <br />1</th>
+                        <th class="sort" data-column="3" width="90">Параметр <br />2</th>
+                        <th class="sort" data-column="4" width="90">Параметр <br />3</th>
+                        <th class="sort" data-column="5" width="90">Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        int i = 0;
+                        foreach (var element in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @(++i)
+                                </td>
+                                <td>
+                                    @element.TimeCreated
+                                </td>
+                                <td>
+                                    @element.CommandName
+                                </td>
+                                <td>
+                                    @element.CommandParameterValue1
+                                </td>
+                                <td>
+                                    @element.CommandParameterValue2
+                                </td>
+                                <td>
+                                    @element.CommandParameterValue3
+                                </td>
+                                <td>
+                                    @element.StateName
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+    </div>
+</div>
+
+@section Scripts
+    {
+    <script>
+        const dropDownList = document.getElementById('dropDownList');
+        let parameterList = document.getElementById('parameterList');
+        let commandId = document.getElementById('commandId');
+        let commandName = document.getElementById('commandName');
+        let parameterName1 = document.getElementById('parameterName1');
+        let parameterValue1 = document.getElementById('parameterValue1');
+        let parameterName2 = document.getElementById('parameterName2');
+        let parameterValue2 = document.getElementById('parameterValue2');
+        let parameterName3 = document.getElementById('parameterName3');
+        let parameterValue3 = document.getElementById('parameterValue3');
+
+        dropDownList.addEventListener('change', () => {
+            parameterList.style.display = "none";
+            parameterName1.type = "hidden";
+            parameterValue1.type = "hidden";
+            parameterName2.type = "hidden";
+            parameterValue2.type = "hidden";
+            parameterName3.type = "hidden";
+            parameterValue3.type = "hidden";
+
+            commandId.value = "";
+            parameterName1.textContent = "";
+            parameterValue1.value = ""
+            parameterName2.textContent = "";
+            parameterValue2.value = ""
+            parameterName3.textContent = "";
+            parameterValue3.value = ""
+
+            // Получаем выбранный элемент
+            const command = dropDownList.options[dropDownList.selectedIndex];
+            const commandInfo = JSON.parse(command.value);
+
+            commandId.value = commandInfo.id;
+            commandName.value = command.text;
+
+            if (commandInfo.parameter_name1 != null
+                || commandInfo.parameter_name2 != null
+                || commandInfo.parameter_name3 != null) parameterList.style.display = "flex";
+
+            if (commandInfo.parameter_name1 != null) {
+                parameterName1.textContent = commandInfo.parameter_name1;
+                parameterValue1.value = commandInfo.parameter_default_value1;
+
+                parameterName1.type = "";
+                parameterValue1.type = "";
+            }
+            if (commandInfo.parameter_name2 != null) {
+                parameterName2.textContent = commandInfo.parameter_name2;
+                parameterValue2.value = commandInfo.parameter_default_value2;
+
+                parameterName2.type = "";
+                parameterValue2.type = "";
+            }
+            if (commandInfo.parameter_name3 != null) {
+                parameterName3.textContent = commandInfo.parameter_name3;
+                parameterValue3.value = commandInfo.parameter_default_value3;
+
+                parameterName3.type = "";
+                parameterValue3.type = "";
+            }
+        });
+    </script>
+}

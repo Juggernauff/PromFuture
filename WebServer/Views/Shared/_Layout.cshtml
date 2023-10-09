@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Переход на страницу со ссылками на современные браузеры для ie9 и ниже -->
+    <!--[if lt IE 10]><script>location.href='/old-browser.html';</script><![endif]-->
+    <meta charset="UTF-8">
+    <title>@ViewData["Title"]</title>
+    <meta name="viewport" content="width=device-width, shrink-to-fit=no">
+    <!--<link rel="stylesheet" href="/css/bootstrap-grid.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="/css/fonts.css">
+    <link rel="stylesheet" href="/css/slick.css">
+    <!--<link rel="stylesheet" href="/css/style2.css" />-->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+</head>
+<body>
+    <header class="header">
+        <div class="wrapper header__wrapper">
+            <span class="menu-btn"></span>
+            <a href="/" class="logo header__logo"><img src="~/images/logo.svg" alt=""></a>
+            <div class="header__breadcrumbs"><a href="#">Личный кабинет</a> - @ViewData["Caption"] </div>
+            <a href="#" class="header__tool">
+                <img src="~/images/user.svg" alt="" class="header__tool-icon">
+                <span class="header__tool-text">test</span>
+            </a>
+            <span class="header__tool">
+                <a href="#" style="text-decoration: none;"><img src="~/images/exit.svg" alt="" class="header__tool-icon"></a>
+            </span>
+        </div>
+    </header><main class="sidebar-page">
+        <aside class="sidebar sidebar-page__sidebar">
+            <ul class="sidebar__menu">
+                <li><a href="/lk/events"><img src="~/images/check-circle--grad.svg" alt=""><span>Состояние автоматов</span></a></li>
+                <li><a href="/lk/events"><img src="~/images/tag.svg" alt=""><span>Продажи</span></a></li>
+                <li><a href="/lk/events"><img src="~/images/calendar-check.svg" alt=""><span>События</span></a></li>
+                <li><a href="/lk/events"><img src="~/images/chart.svg" alt=""><span>График продаж</span></a></li>
+                <li class="classifier"><a href="/lk/classifier"><img src="~/images/Classifer.png" alt=""><span>Классификаторы</span></a></li>
+                <li class="classifier_down "><a href="#"><span>Автоматы</span></a></li>
+                <li class="classifier_down "><a href="#"><span>Модели автоматов</span></a></li>
+                <li class="classifier_down "><a href="#"><span>Товары</span></a></li>
+                <li class="classifier_down "><a href="#"><span>Товарная матрица</span></a></li>
+                <li class="classifier_down "><a href="#"><span>Пользователи</span></a></li>
+            </ul>
+        </aside>
+        <div class="sidebar-page__content">
+            @RenderBody()
+        </div>
+    </main>    <footer class="footer">
+        <div class="wrapper footer__wrapper">
+            <div class="footer__text">ООО "ПромБудущее"</div>
+            <a href="tel:+8432072102" class="footer__contact">
+                <img src="~/images/phone.svg" alt="" class="footer__contact-icon">
+                <span class="footer__contact-text">(843) 207-21-02</span>
+            </a>
+            <a href="mailto:support@a-plata.ru" class="footer__contact">
+                <img src="~/images/envelope.svg" alt="" class="footer__contact-icon">
+                <span class="footer__contact-text">support@a-plata.ru</span>
+            </a>
+            <div class="footer__text">© A-plata™, 2020</div>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/slick.min.js"></script>
+    <script src="~/js/script.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="~/js/site.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+<div></div>
+</html>
